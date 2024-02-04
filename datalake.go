@@ -1,13 +1,15 @@
-package Hoard
+package main
 
 import (
-	"Hoard/pkg/api"
 	_ "embed"
 	"github.com/julienschmidt/httprouter"
+	log "github.com/sirupsen/logrus"
+	hoardapi "main/pkg/api"
 )
 
 func main() {
-	handler := &api.Handler{}
+	log.Println("Starting Hoard DataLake!")
+	handler := &hoardapi.Handler{}
 	httpRouter := httprouter.New()
 	httpRouter.GET("/health", handler.HealthCheck)
 }

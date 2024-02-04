@@ -1,4 +1,4 @@
-package api
+package hoard_api
 
 import (
 	"encoding/json"
