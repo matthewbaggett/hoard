@@ -2,15 +2,17 @@ package main
 
 import (
 	_ "embed"
-	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
-	hoard_api "main/pkg/api"
+	"main/pkg/datapond"
 )
 
 func main() {
-	log.Println("Starting Hoard DataPond!")
-	handler := &hoard_api.Handler{}
-	httpRouter := httprouter.New()
-	httpRouter.GET("/health", handler.HealthCheck)
-	httpRouter.PUT("/hoard/:entity_type", handler.PutEntityInHoard)
+	handler, err := datapond.StartHandler()
+
+	if err != nil {
+		log.Errorf("Error starting Hoard DataPond: %v", err)
+		return
+	}
+
+	log.Infof("Started Hoard DataPond listening on %s\n", handler.Listener.Addr())
 }

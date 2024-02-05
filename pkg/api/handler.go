@@ -9,9 +9,9 @@ import (
 )
 
 type Handler struct {
-	router   *httprouter.Router
-	listener net.Listener
-	server   *http.Server
+	Router   *httprouter.Router
+	Listener net.Listener
+	Server   *http.Server
 	logger   logrus.FieldLogger
 }
 
