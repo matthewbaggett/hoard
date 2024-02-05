@@ -44,7 +44,48 @@ actions:
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
+    - build
+    - build-datalake
+    - build-datapond
+  definitions:
+    - id: build
+      description: build all
+      run: |
+        trunk run build-datalake & trunk run build-datapond
+    - id: build-datalake
+      description: Build bin/datalake
+      runtime: go
+      triggers:
+        - files:
+            - datalake.go
+            - pkg/datalake
+      run: |
+        echo "Building DataLake"
+        go build \
+          -v \
+          -ldflags "-X DataPond.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
+          -o bin/datalake \
+          datalake.go
+        chmod +x bin/datalake
+        echo "Built DataLake"
+    - id: build-datapond
+      description: Build bin/datapond
+      runtime: go
+      triggers:
+        - files:
+            - datapond.go
+            - pkg/datapond
+      run: |
+        echo "Building DataPond"
+        go build \
+          -v \
+          -ldflags "-X DataPond.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
+          -o bin/datapond \
+          datapond.go
+        chmod +x bin/datapond
+        echo "Built DataPond"
 tools:
   enabled:
+    - act@0.2.59
   runtimes:
     - go
