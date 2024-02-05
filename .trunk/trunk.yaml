@@ -63,7 +63,8 @@ actions:
         echo "Building DataLake"
         go build \
           -v \
-          -ldflags "-X DataPond.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
+          -ldflags "-X common.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
+          -ldflags "-X common.build_time=$(date -Iseconds)" \
           -o bin/datalake \
           datalake.go
         chmod +x bin/datalake
@@ -79,7 +80,8 @@ actions:
         echo "Building DataPond"
         go build \
           -v \
-          -ldflags "-X DataPond.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
+          -ldflags "-X common.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
+          -ldflags "-X common.buildtime=$(date -Iseconds)" \
           -o bin/datapond \
           datapond.go
         chmod +x bin/datapond
