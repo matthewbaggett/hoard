@@ -3,6 +3,7 @@ package datapond
 import (
 	_ "embed"
 	"errors"
+	"fmt"
 	_ "fmt"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
@@ -13,14 +14,7 @@ import (
 	"time"
 )
 
-type Handler struct {
-	Router   *httprouter.Router
-	listener net.Listener
-	server   *http.Server
-	logger   log.FieldLogger
-}
-
-func StartHandler() (*hoard_api.Handler, error) {
+func StartHandler(bindAddress string, port int) (*hoard_api.Handler, error) {
 
 	log.Printf(
 		"Starting Hoard DataPond! Version %s, built %s\n",
@@ -28,12 +22,14 @@ func StartHandler() (*hoard_api.Handler, error) {
 		common.GetBuildTime(),
 	)
 	handler := &hoard_api.Handler{}
+	handler.Port = port
+	handler.Address = bindAddress
 	httpRouter := httprouter.New()
 	httpRouter.GET("/health", handler.HealthCheck)
 	httpRouter.PUT("/hoard/:entity_type", handler.PutEntityInHoard)
 	handler.Router = httpRouter
 
-	listener, err := net.Listen("tcp", "0.0.0.0:0")
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", handler.Address, handler.Port))
 	if err != nil {
 		return nil, err
 	}

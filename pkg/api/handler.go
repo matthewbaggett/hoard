@@ -13,6 +13,8 @@ type Handler struct {
 	Listener net.Listener
 	Server   *http.Server
 	logger   logrus.FieldLogger
+	Port     int
+	Address  string
 }
 
 func (h Handler) PutEntityInHoard(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
