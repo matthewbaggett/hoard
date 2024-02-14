@@ -4,7 +4,11 @@ all: build
 .PHONY: format build
 format:
 	go fmt ./...
-build: format
+pre-build:
+	echo $(VERSION) > pkg/common/VERSION
+	date -Iseconds > pkg/common/BUILD_TIME
+build: format pre-build
+
 	go build -ldflags "-X DataPond.version=$(VERSION)" -o bin/datapond datapond.go
 	go build -ldflags "-X DataPond.version=$(VERSION)" -o bin/datalake datalake.go
 	go build  -o bin/log log.go

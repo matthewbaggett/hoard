@@ -13,7 +13,7 @@ type Handler struct {
 	Router   *httprouter.Router
 	Listener net.Listener
 	Server   *http.Server
-	logger   logrus.FieldLogger
+	Logger   logrus.FieldLogger
 	Port     int
 	Address  string
 }
@@ -23,8 +23,11 @@ func (h Handler) PutEntityInHoard(writer http.ResponseWriter, request *http.Requ
 }
 
 func (h Handler) HealthCheck(writer http.ResponseWriter, request *http.Request) {
-	h.logger.Errorf("Healthcheck Requested")
-	h.responseJSON(writer, request, 200)
+	h.Logger.Infof("Healthcheck Requested")
+
+	h.responseJSON(writer, request, 200, map[string]any{
+		"status": "alive",
+	})
 	return
 }
 func (h *Handler) responseJSON(w http.ResponseWriter, r *http.Request, code int, v ...any) {
@@ -33,7 +36,7 @@ func (h *Handler) responseJSON(w http.ResponseWriter, r *http.Request, code int,
 	if len(v) == 0 || v[0] == nil {
 		data, _ = json.MarshalIndent(struct{}{}, "", "  ")
 	} else if err, ok := v[0].(error); ok {
-		h.logger.Errorf("%v %v: %v", r.Method, r.RequestURI, err)
+		h.Logger.Errorf("%v %v: %v", r.Method, r.RequestURI, err)
 		data, _ = json.MarshalIndent(map[string]any{
 			"error": err.Error(),
 		}, "", "  ")

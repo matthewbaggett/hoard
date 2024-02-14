@@ -19,6 +19,7 @@ func StartHandler(bindAddress string, bindPort int) (*hoardApi.Handler, error) {
 	handler := &hoardApi.Handler{
 		Port:    bindPort,
 		Address: bindAddress,
+		Logger:  log.StandardLogger(),
 	}
 
 	http.HandleFunc("/health", handler.HealthCheck)

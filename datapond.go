@@ -12,7 +12,6 @@ func main() {
 	var bindPort int
 	flag.StringVar(&bindAddress, "http-bind", "0.0.0.0", "Address to bind on")
 	flag.IntVar(&bindPort, "http-port", 0, "Port to listen on")
-
 	flag.Parse()
 
 	handler, err := datapond.StartHandler(bindAddress, bindPort)
