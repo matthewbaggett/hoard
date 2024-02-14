@@ -21,7 +21,7 @@ build-data-pond:
 data-pond: clear build-data-pond
 	echo "Running Data Pond"
 	./bin/datapond \
-		--http-bind=127.0.0.99 --http-port=8080
+		--http-bind=0.0.0.0 --http-port=10963
 
 build-data-lake:
 	echo "Building Data Lake"

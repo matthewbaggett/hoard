@@ -2,50 +2,27 @@ package datapond
 
 import (
 	_ "embed"
-	"errors"
-	"fmt"
 	_ "fmt"
-	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
-	hoard_api "main/pkg/api"
+	hoardApi "main/pkg/api"
 	"main/pkg/common"
-	"net"
 	"net/http"
-	"time"
 )
 
-func StartHandler(bindAddress string, port int) (*hoard_api.Handler, error) {
+func StartHandler(bindAddress string, bindPort int) (*hoardApi.Handler, error) {
 
 	log.Printf(
 		"Starting Hoard DataPond! Version %s, built %s\n",
 		common.GetVersion(),
 		common.GetBuildTime(),
 	)
-	handler := &hoard_api.Handler{}
-	handler.Port = port
-	handler.Address = bindAddress
-	httpRouter := httprouter.New()
-	httpRouter.GET("/health", handler.HealthCheck)
-	httpRouter.PUT("/hoard/:entity_type", handler.PutEntityInHoard)
-	handler.Router = httpRouter
-
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", handler.Address, handler.Port))
-	if err != nil {
-		return nil, err
+	handler := &hoardApi.Handler{
+		Port:    bindPort,
+		Address: bindAddress,
 	}
-	server := &http.Server{
-		ReadHeaderTimeout: 2 * time.Second,
-		Handler:           handler.Router,
-	}
-	go func() {
-		if err := server.Serve(listener); err != nil && errors.Is(err, net.ErrClosed) {
-			log.Errorf("http serve: %v", err)
-		}
-	}()
-	handler.Listener = listener
-	handler.Server = server
 
-	log.Printf("Started Hoard DataPond on %s!\n", handler.Listener.Addr())
+	http.HandleFunc("/health", handler.HealthCheck)
+	http.ListenAndServe(handler.GetAddress(), nil)
 
 	return handler, nil
 }

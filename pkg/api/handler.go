@@ -2,6 +2,7 @@ package hoard_api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
 	"net"
@@ -21,7 +22,7 @@ func (h Handler) PutEntityInHoard(writer http.ResponseWriter, request *http.Requ
 
 }
 
-func (h Handler) HealthCheck(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (h Handler) HealthCheck(writer http.ResponseWriter, request *http.Request) {
 	h.logger.Errorf("Healthcheck Requested")
 	h.responseJSON(writer, request, 200)
 	return
@@ -41,4 +42,8 @@ func (h *Handler) responseJSON(w http.ResponseWriter, r *http.Request, code int,
 	}
 	w.WriteHeader(code)
 	_, _ = w.Write(data)
+}
+
+func (h Handler) GetAddress() string {
+	return fmt.Sprintf("%s:%d", h.Address, h.Port)
 }
