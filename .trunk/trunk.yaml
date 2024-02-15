@@ -21,7 +21,7 @@ runtimes:
 lint:
   enabled:
     - actionlint@1.6.26
-    - checkov@3.2.19
+    - checkov@3.2.20
     - dotenv-linter@3.3.0
     - git-diff-check
     - gitleaks@8.18.2
@@ -36,7 +36,7 @@ lint:
     - shfmt@3.6.0
     - terrascan@1.18.11
     - trivy@0.49.1
-    - trufflehog@3.67.5
+    - trufflehog@3.67.6
     - yamllint@1.34.0
 actions:
   enabled:
@@ -44,48 +44,24 @@ actions:
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
+    - update-metadata
     - build
-    - build-datalake
-    - build-datapond
   definitions:
+    - id: update-metadata
+      description: Update metadata
+      triggers:
+        - git_hooks:
+            - pre-commit
+      run: |
+        echo "Updating metadata"
+        git describe --tags --dirty --always | tr -d '\n' > pkg/common/VERSION
+        date -Iseconds | tr -d '\n' > pkg/common/BUILD_TIME
     - id: build
-      description: build all
+      description: Build the project
       run: |
-        trunk run build-datalake & trunk run build-datapond
-    - id: build-datalake
-      description: Build bin/datalake
-      runtime: go
-      triggers:
-        - files:
-            - datalake.go
-            - pkg/datalake
-      run: |
-        echo "Building DataLake"
-        go build \
-          -v \
-          -ldflags "-X common.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
-          -ldflags "-X common.build_time=$(date -Iseconds)" \
-          -o bin/datalake \
-          datalake.go
-        chmod +x bin/datalake
-        echo "Built DataLake"
-    - id: build-datapond
-      description: Build bin/datapond
-      runtime: go
-      triggers:
-        - files:
-            - datapond.go
-            - pkg/datapond
-      run: |
-        echo "Building DataPond"
-        go build \
-          -v \
-          -ldflags "-X common.version=$(git describe --tags --dirty --always | sed -e 's/^v//')" \
-          -ldflags "-X common.buildtime=$(date -Iseconds)" \
-          -o bin/datapond \
-          datapond.go
-        chmod +x bin/datapond
-        echo "Built DataPond"
+        trunk run update-metadata
+        echo "Building the project"
+        docker compose build
 tools:
   enabled:
     - act@0.2.59

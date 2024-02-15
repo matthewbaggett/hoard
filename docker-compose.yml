@@ -1,0 +1,97 @@
+version: "3.7"
+services:
+  datapond-1-mysql-1: &mysql
+    image: ghcr.io/benzine-framework/mariadb:11.2
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MARIADB_DATABASE: "datapond"
+      MARIADB_USER: "datapond"
+      MARIADB_PASSWORD: "datapond"
+  datapond-1-mysql-2: *mysql
+  datapond-1-postgres-1: &postgres
+    image: ghcr.io/benzine-framework/postgres:16
+    environment:
+      POSTGRES_USER: "datapond"
+      POSTGRES_PASSWORD: "datapond"
+      POSTGRES_DB: "datapond"
+  datapond-1-postgres-2: *postgres
+  datapond-1-redis-1:
+    image: ghcr.io/benzine-framework/redis:latest
+  datapond-2-mysql-1:
+    image: ghcr.io/benzine-framework/mariadb:11.2
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MARIADB_DATABASE: "smallco"
+      MARIADB_USER: "smallco"
+      MARIADB_PASSWORD: "smallco"
+
+  datapond:
+    build:
+      context: .
+      target: datapond
+    image: ghcr.io/matthewbaggett/hoard-data-pond
+    ports:
+      - "127.0.0.1:10963:10963"
+    depends_on:
+      datapond-1-mysql-1:
+        condition: service_healthy
+      datapond-1-mysql-2:
+        condition: service_healthy
+      datapond-1-postgres-1:
+        condition: service_healthy
+      datapond-1-postgres-2:
+        condition: service_healthy
+      datapond-1-redis-1:
+        condition: service_healthy
+    command:
+      [
+        "--pool0-name",
+        "mysql",
+        "--pool0-dsn0",
+        "mysql://datapond:datapond@datapond-1-mysql-1:3306/datapond",
+        "--pool0-dsn1",
+        "mysql://datapond:datapond@datapond-1-mysql-2:3306/datapond",
+        "--pool0-filter",
+        "updatedAt < NOW() - INTERVAL 365 DAY",
+        "--pool1-name",
+        "postgres",
+        "--pool1-dsn0",
+        "postgres://datapond:datapond@datapond-1-postgres-1:5432/datapond",
+        "--pool1-dsn1",
+        "postgres://datapond:datapond@datapond-1-postgres-2:5432/datapond",
+        "--pool2-name",
+        "redis",
+        "--pool2-dsn0",
+        "redis://:datapond@datapond-1-redis-1:6379/0",
+      ]
+#  datapond-2:
+#    build:
+#      context: .
+#      target: datapond
+#    image: ghcr.io/matthewbaggett/hoard-data-pond
+#    ports:
+#      - "127.0.0.1:10964:10963"
+#    depends_on:
+#      datapond-2-mysql-1:
+#        condition: service_healthy
+#    command: [
+#      "--pool0-name", "smallco",
+#      "--pool0-dsn", "mysql://smallco:smallco@datapond-2-mysql-1:3306/smallco",
+#    ]
+
+#  datalake:
+#    build:
+#      context: .
+#      target: datalake
+#    image: ghcr.io/matthewbaggett/hoard-data-lake
+#    ports:
+#      - "127.0.0.1:9183:9183"
+#    depends_on:
+#      datapond:
+#        condition: service_healthy
+#      datapond-2:
+#        condition: service_healthy
+#    command: [
+#        "--lake", "bigco:http://datapond:10963",
+#        "--lake", "smallco:http://datapond-2:10963",
+#      ]
