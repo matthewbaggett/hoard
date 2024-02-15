@@ -12,9 +12,10 @@ import (
 func StartHandler(bindAddress string, bindPort int) (*hoardApi.Handler, error) {
 
 	log.Printf(
-		"Starting Hoard DataPond! Version %s, built %s\n",
+		"Starting Hoard DataPond! Version %s, built %s: %s\n",
 		common.GetVersion(),
 		common.GetBuildTime(),
+		common.GetGitCommitMessage(),
 	)
 	handler := &hoardApi.Handler{
 		Port:    bindPort,

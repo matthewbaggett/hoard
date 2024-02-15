@@ -45,7 +45,7 @@ actions:
     - trunk-fmt-pre-commit
     - trunk-upgrade-available
     - update-metadata
-    - build
+    - build-datapond
   definitions:
     - id: update-metadata
       description: Update metadata
@@ -56,12 +56,14 @@ actions:
         echo "Updating metadata"
         git describe --tags --dirty --always | tr -d '\n' > pkg/common/VERSION
         date -Iseconds | tr -d '\n' > pkg/common/BUILD_TIME
-    - id: build
+        git log -1 --pretty=%B | head -n1 | tr -d '\n' > pkg/common/GIT_COMMIT_MESSAGE
+    - id: build-datapond
       description: Build the project
       run: |
         trunk run update-metadata
         echo "Building the project"
         docker compose build
+
 tools:
   enabled:
     - act@0.2.59

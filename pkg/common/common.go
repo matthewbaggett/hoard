@@ -6,12 +6,19 @@ import _ "embed"
 var version string
 
 //go:embed BUILD_TIME
-var build_time string
+var buildTime string
+
+//go:embed GIT_COMMIT_MESSAGE
+var gitCommitMessage string
 
 func GetVersion() string {
 	return version
 }
 
 func GetBuildTime() string {
-	return build_time
+	return buildTime
+}
+
+func GetGitCommitMessage() string {
+	return gitCommitMessage
 }
