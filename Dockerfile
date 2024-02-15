@@ -20,33 +20,29 @@ RUN go mod download && \
     go mod verify
 COPY ./pkg/ /build/pkg
 
+FROM scratch AS hoardbase
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+USER hoard:hoard
+STOPSIGNAL SIGTERM
+
 FROM builder as builder-datapond
 COPY ./datapond /build/datapond
 RUN go build -o datapond datapond/datapond.go
 RUN chmod +x datapond
 
-FROM scratch AS datapond
-COPY --from=builder-datapond /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=builder-datapond /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder-datapond /etc/passwd /etc/passwd
-COPY --from=builder-datapond /etc/group /etc/group
+FROM hoardbase AS datapond
 COPY --from=builder-datapond /build/datapond .
-USER hoard:hoard
 CMD ["./datapond"]
-ENTRYPOINT ["./datapond"]
 
 FROM builder as builder-datalake
 COPY ./datalake /build/datalake
 RUN go build -o datalake datalake/datalake.go
 RUN chmod +x datapond
 
-FROM scratch AS datalake
-COPY --from=builder-datalake /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=builder-datalake /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder-datalake /etc/passwd /etc/passwd
-COPY --from=builder-datalake /etc/group /etc/group
+FROM hoardbase AS datalake
 COPY --from=builder-datalake /build/datalake .
-USER hoard:hoard
 CMD ["./datalake"]
-ENTRYPOINT ["./datalake"]
 

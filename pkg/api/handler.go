@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
+	"main/pkg/common"
 	"net"
 	"net/http"
 )
@@ -26,7 +27,8 @@ func (h Handler) HealthCheck(writer http.ResponseWriter, request *http.Request) 
 	h.Logger.Infof("Healthcheck Requested")
 
 	h.responseJSON(writer, request, 200, map[string]any{
-		"status": "alive",
+		"status":  "alive",
+		"version": common.GetVersion(),
 	})
 	return
 }

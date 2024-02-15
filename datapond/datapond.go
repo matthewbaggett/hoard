@@ -31,11 +31,11 @@ func (dp datapond_pool) String() string {
 func main() {
 	var bindAddress string
 	var bindPort int
-	var datapondPools []datapond_pool
+	//var datapondPools []datapond_pool
 
 	flag.StringVar(&bindAddress, "http-bind", "0.0.0.0", "Address to bind on")
-	flag.IntVar(&bindPort, "http-port", 0, "Port to listen on")
-	log.Infof("Creating flags for datapond pools")
+	flag.IntVar(&bindPort, "http-port", 10963, "Port to listen on. Default is 10963. Setting this to 0 will pick a random port.")
+	/*log.Infof("Creating flags for datapond pools")
 	for i := 0; i < 10; i++ {
 		datapondPools = append(datapondPools, datapond_pool{})
 		//log.Infof("Creating flags for datapond pools: --pool%d-name", i)
@@ -48,10 +48,11 @@ func main() {
 		datapondPools[i].Filters = append(datapondPools[i].Filters, "")
 		flag.StringVar(&datapondPools[i].Filters[0], fmt.Sprintf("pool%d-filter", i), "", "Filter for the pool")
 	}
+	/**/
 	flag.Parse()
 
 	// foreach datapond pool, if the name is set and atleast one dsn is set, mark it as configured
-	for i := 0; i < len(datapondPools); i++ {
+	/*for i := 0; i < len(datapondPools); i++ {
 		if datapondPools[i].Name != "" {
 			log.Infof("Checking pool: %s", datapondPools[i].String())
 			for j := 0; j < len(datapondPools[i].Connections); j++ {
@@ -62,7 +63,7 @@ func main() {
 				}
 			}
 		}
-	}
+	}/**/
 
 	handler, err := datapond.StartHandler(bindAddress, bindPort)
 

@@ -1,0 +1,22 @@
+# @name Healthcheck
+GET {{endpoint}}/health
+Content-Type: application/json
+
+# check the response contained a field called status
+> {%
+ client.test("HTTP Code is 200 OK", function() {
+     client.assert(response.status, 200);
+ });
+ client.test("Status is Alive", function() {
+     client.assert(response.body.hasOwnProperty("status"), true);
+     client.log(response.body);
+     client.assert(response.body.status, "alive");
+ })
+ client.log(response.headers)
+ //client.test("Content-Type is application/json", function() {
+ //    client.assert(response.headers["Content-Type"], "application/json");
+ //});
+ client.test("Response has version field", function() {
+     client.assert(response.body.hasOwnProperty("version"), true);
+ });
+ %}

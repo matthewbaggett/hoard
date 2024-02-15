@@ -23,6 +23,8 @@ func StartHandler(bindAddress string, bindPort int) (*hoardApi.Handler, error) {
 		Logger:  log.StandardLogger(),
 	}
 
+	log.Printf("Listening on %s\n", handler.GetAddress())
+
 	http.HandleFunc("/health", handler.HealthCheck)
 	http.ListenAndServe(handler.GetAddress(), nil)
 

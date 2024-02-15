@@ -1,4 +1,0 @@
-# Get Healthcheck
-# @name Healthcheck
-GET {{endpoint}}/health
-Content-Type: application/json
